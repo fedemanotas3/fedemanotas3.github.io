@@ -1106,39 +1106,29 @@
           </div>
         </article>
 
-        <article class="proj-card reveal">
-          <div class="proj-head">
-            <div class="proj-icon">&#128202;</div>
-            <a
-              href="#"
-              class="proj-link"
-              title="GitHub"
-              target="_blank"
-              rel="noopener"
-              >&#128279;</a
-            >
-          </div>
-          <h3 class="proj-title">Sales Performance Dashboard</h3>
-          <p class="proj-desc">
-            End-to-end Power BI dashboard tracking revenue, margin, and pipeline
-            health across regions and product lines.
-          </p>
-          <ul class="proj-bullets">
-            <li class="proj-bullet">
-              Designed DAX measures and KPI cards for real-time decisions
-            </li>
-            <li class="proj-bullet">
-              Implemented drill-through pages for category deep dives
-            </li>
-            <li class="proj-bullet">
-              Reduced manual reporting time by 60% through automation
-            </li>
-          </ul>
-          <div class="tags">
-            <span class="tag">Power BI</span><span class="tag">DAX</span
-            ><span class="tag">SQL</span><span class="tag">Data Modeling</span>
-          </div>
-        </article>
+        <div class="proj-grid">
+        <article
+          class="proj-card reveal"
+          onclick="
+            location.href = './projects/Lending_Club_Loan_Project/project-lending.html'
+          "
+          style="cursor: pointer"
+        >
+      <div class="proj-head">
+        <div class="proj-icon">&#128084;</div>
+        <a href="project-lending.html" class="proj-link" title="View Project">&#128279;</a>
+      </div>
+      <h3 class="proj-title">Lending Club Loan Risk Analysis</h3>
+      <p class="proj-desc">Credit risk and profitability analysis of a $33.9B loan portfolio — identifying default drivers, geographic risk, and borrower profiles.</p>
+      <ul class="proj-bullets">
+        <li class="proj-bullet">Default rates from 1.62% (Grade A1) to 40% (Grade G3) across credit tiers</li>
+        <li class="proj-bullet">$4.18B in charged-off losses with peak rates during 2014–2015 expansion</li>
+        <li class="proj-bullet">Live interactive app deployed on Hugging Face Spaces</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Matplotlib</span><span class="tag">ML</span><span class="tag">Hugging Face</span>
+      </div>
+    </article>
 
         <article class="proj-card reveal">
           <div class="proj-head">
