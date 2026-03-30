@@ -390,42 +390,6 @@
     </iframe>
   </div>
 
-  <!-- Step-by-step guide -->
-  <div class="hf-guide reveal">
-    <h3>&#128218;&nbsp; How to embed your Hugging Face Space</h3>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <strong>Make sure your Space is public</strong>
-          <p>Go to <code>huggingface.co/spaces/fedem0203/Lending_Club_Loan_Project</code> → Settings → set visibility to <code>Public</code>.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <strong>Get the direct embed URL</strong>
-          <p>The embed URL follows this pattern: <code>https://fedem0203-lending-club-loan-project.hf.space</code> (replace dashes for your actual space slug if different).</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <strong>Replace the iframe src</strong>
-          <p>In this file, find the <code>&lt;iframe&gt;</code> inside <code>.hf-embed-wrap</code> and update the <code>src</code> attribute with your correct Space URL.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body">
-          <strong>Adjust height if needed</strong>
-          <p>The iframe is set to <code>height: 780px</code>. Change this in the CSS <code>.hf-embed-wrap iframe</code> rule to match your app's natural height.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- NOTEBOOK -->
 <section style="padding:4rem 6% 2rem" id="notebook">
   <div class="reveal" style="max-width:820px;margin-bottom:2rem">
