@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Air Quality Analysis — Federico Manotas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:    #070b14;
+      --surf:  #0d1220;
+      --surf2: #131927;
+      --border:rgba(255,255,255,0.08);
+      --a1:    #4f8ef7;
+      --a2:    #8b5cf6;
+      --glow:  rgba(79,142,247,0.28);
+      --txt:   #e8edf5;
+      --muted: #7a8aa8;
+      --dim:   #3d4f6a;
+      --fd:    'Syne', Georgia, serif;
+      --fb:    'DM Sans', system-ui, sans-serif;
+      --r:     12px;
+      --rs:    8px;
+      --ease:  cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fb);background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:99px}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1rem 6%;background:rgba(7,11,20,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-family:var(--fd);font-weight:800;font-size:1rem;letter-spacing:-.02em}
+    .nav-logo span{color:var(--a1)}
+    .nav-back{display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--muted);transition:color .2s}
+    .nav-back:hover{color:var(--txt)}
+    .nav-back::before{content:'←';font-size:1rem}
+    .nav-tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--a1);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);padding:.28rem .7rem;border-radius:99px}
+
+    /* HERO */
+    #hero{min-height:62vh;display:flex;align-items:flex-end;position:relative;overflow:hidden;padding:9rem 6% 4rem}
+    .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18;animation:drift 14s ease-in-out infinite alternate}
+    .b1{width:500px;height:500px;background:var(--a1);top:-80px;right:-60px}
+    .b2{width:340px;height:340px;background:var(--a2);bottom:-40px;left:-60px;animation-delay:-7s}
+    @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.06)}}
+    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 40% 60%,black 20%,transparent 100%)}
+    .hero-content{position:relative;z-index:2;max-width:820px}
+    .hero-breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted);margin-bottom:1.4rem}
+    .hero-breadcrumb a:hover{color:var(--a1)}
+    .hero-breadcrumb span{color:var(--dim)}
+    .hero-title{font-family:var(--fd);font-size:clamp(2.2rem,6vw,4rem);font-weight:800;line-height:1.08;letter-spacing:-.04em;margin-bottom:1.2rem}
+    .grad{background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-desc{font-size:clamp(.9rem,1.6vw,1.05rem);color:var(--muted);max-width:620px;line-height:1.75;margin-bottom:1.8rem}
+    .hero-meta{display:flex;flex-wrap:wrap;gap:.7rem}
+    .meta-chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;padding:.3rem .75rem;border:1px solid var(--border);border-radius:99px;color:var(--muted);background:var(--surf)}
+    .meta-chip b{color:var(--txt);font-weight:500}
+    .hero-actions{margin-top:2rem;display:flex;gap:.85rem;flex-wrap:wrap}
+    .btn-p{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.5rem;border-radius:99px;font-weight:500;font-size:.88rem;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;transition:transform .2s var(--ease),box-shadow .2s}
+    .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,142,247,.4)}
+    .btn-g{display:inline-flex;align-items:center;gap:.45rem;padding:.63rem 1.5rem;border-radius:99px;font-weight:500;font-size:.88rem;border:1px solid var(--border);color:var(--muted);transition:border-color .2s,color .2s,transform .2s var(--ease)}
+    .btn-g:hover{border-color:var(--a1);color:var(--txt);transform:translateY(-2px)}
+
+    /* STATS */
+    .stats-strip{background:var(--surf);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2rem 6%;display:flex;justify-content:center;flex-wrap:wrap}
+    .stat-item{flex:1;min-width:130px;max-width:180px;text-align:center;padding:1rem 1.2rem;border-right:1px solid var(--border)}
+    .stat-item:last-child{border-right:none}
+    .stat-val{font-family:var(--fd);font-size:1.8rem;font-weight:800;display:block;margin-bottom:.2rem}
+    .stat-lbl{font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+
+    /* SECTION */
+    .lbl{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--a1);margin-bottom:.6rem}
+    .stitle{font-family:var(--fd);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-.03em;line-height:1.2}
+    .sdiv{width:44px;height:3px;background:linear-gradient(90deg,var(--a1),var(--a2));border-radius:99px;margin:1rem 0}
+
+    /* FINDINGS */
+    .findings-section{padding:4rem 6%}
+    .findings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;margin-top:2.5rem}
+    .finding-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;transition:border-color .3s,transform .3s var(--ease);position:relative;overflow:hidden}
+    .finding-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a1),var(--a2));transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+    .finding-card:hover{border-color:rgba(79,142,247,.35);transform:translateY(-3px)}
+    .finding-card:hover::before{transform:scaleX(1)}
+    .finding-icon{font-size:1.6rem;margin-bottom:.8rem}
+    .finding-title{font-family:var(--fd);font-size:.92rem;font-weight:700;margin-bottom:.5rem}
+    .finding-txt{font-size:.82rem;color:var(--muted);line-height:1.68}
+    .finding-metric{display:inline-block;margin-top:.8rem;font-family:var(--fd);font-size:1.3rem;font-weight:800}
+
+    /* CATEGORIES */
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:2.5rem}
+    .cat-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem;transition:border-color .3s,transform .3s var(--ease)}
+    .cat-card:hover{border-color:rgba(79,142,247,.35);transform:translateY(-3px)}
+    .cat-num{font-family:var(--fd);font-size:2rem;font-weight:800;display:block;margin-bottom:.3rem}
+    .cat-label{font-size:.88rem;font-weight:600;color:var(--txt);margin-bottom:.5rem}
+    .cat-q{font-size:.76rem;color:var(--muted);padding:.2rem 0 .2rem .8rem;border-left:2px solid rgba(79,142,247,.3);margin:.2rem 0;line-height:1.4;display:block}
+
+    /* HF APP */
+    .hf-section{padding:4rem 6%;background:var(--surf);border-top:1px solid var(--border)}
+    .hf-header{max-width:700px;margin:0 auto 2.5rem;text-align:center}
+    .hf-embed-wrap{max-width:1100px;margin:0 auto;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+    .hf-embed-wrap iframe{width:100%;height:780px;border:none;display:block}
+
+    /* POWER BI */
+    .pbi-section{padding:4rem 6%}
+    .pbi-header{max-width:700px;margin:0 auto 2.5rem;text-align:center}
+    .pbi-placeholder{max-width:1100px;margin:0 auto;border:1px solid var(--border);border-radius:var(--r);background:var(--surf2);min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;padding:3rem}
+    .pbi-placeholder .pbi-icon{font-size:3rem;opacity:.5}
+    .pbi-placeholder p{color:var(--muted);font-size:.9rem;text-align:center;max-width:420px;line-height:1.7}
+    .pbi-badge{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--a1);border:1px solid rgba(79,142,247,.3);padding:.35rem .9rem;border-radius:99px;background:rgba(79,142,247,.08)}
+    .pbi-embed{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--r);border:1px solid var(--border)}
+    .pbi-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+
+    /* NOTEBOOK */
+    .nb-frame{width:100%;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .nb-controls{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:var(--surf2);border-bottom:1px solid var(--border)}
+    .nb-controls span{font-size:.78rem;color:var(--muted)}
+    .nb-toggle{font-size:.75rem;padding:.3rem .8rem;border:1px solid var(--border);border-radius:99px;background:transparent;color:var(--muted);cursor:pointer;transition:border-color .2s,color .2s}
+    .nb-toggle:hover{border-color:var(--a1);color:var(--a1)}
+
+    /* FOOTER */
+    footer{background:var(--surf);border-top:1px solid var(--border);padding:2rem 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .f-logo{font-family:var(--fd);font-weight:800;font-size:.95rem}
+    .f-logo span{color:var(--a1)}
+    .f-copy{font-size:.78rem;color:var(--dim)}
+
+    /* REVEAL */
+    @media(prefers-reduced-motion:no-preference){
+      .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+      .reveal.on{opacity:1;transform:translateY(0)}
+    }
+    @media(max-width:640px){.hero-actions{flex-direction:column}.btn-p,.btn-g{justify-content:center}}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">FM<span>.</span></div>
+  <a href="../../index.html" class="nav-back">Back to Portfolio</a>
+  <div><span class="nav-tag">Case Study</span></div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="blob b1" aria-hidden="true"></div>
+  <div class="blob b2" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="hero-breadcrumb">
+      <a href="../../index.html">Portfolio</a>
+      <span>/</span><span>Projects</span><span>/</span>
+      <span style="color:var(--txt)">Global Air Quality</span>
+    </div>
+    <h1 class="hero-title">
+      Global Air Quality<br>
+      <span class="grad">&amp; PM2.5 Predictor</span>
+    </h1>
+    <p class="hero-desc">
+      A full exploratory analysis of air quality across 580 cities and 90 countries,
+      combined with a machine learning model to predict PM2.5 pollution levels —
+      deployed as an interactive app on Hugging Face Spaces.
+    </p>
+    <div class="hero-meta">
+      <span class="meta-chip">&#128197; <b>2024–2025</b></span>
+      <span class="meta-chip">&#128187; <b>Python · Pandas · Matplotlib</b></span>
+      <span class="meta-chip">&#129302; <b>Random Forest · XGBoost</b></span>
+      <span class="meta-chip">&#127760; <b>Hugging Face Space</b></span>
+      <span class="meta-chip">&#128202; <b>Power BI</b></span>
+    </div>
+    <div class="hero-actions">
+      <a href="#notebook" class="btn-p">&#128193;&nbsp;View Notebook</a>
+      <a href="#app"      class="btn-g">&#129302;&nbsp;Live ML App</a>
+      <a href="#dashboard" class="btn-g">&#128202;&nbsp;Power BI</a>
+      <a href="#"         class="btn-g" target="_blank" rel="noopener">&#128279;&nbsp;GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><span class="stat-val grad">580</span><span class="stat-lbl">Cities Analyzed</span></div>
+  <div class="stat-item"><span class="stat-val grad">90</span><span class="stat-lbl">Countries</span></div>
+  <div class="stat-item"><span class="stat-val grad">4.5M+</span><span class="stat-lbl">Data Points</span></div>
+  <div class="stat-item"><span class="stat-val grad">0.878</span><span class="stat-lbl">XGBoost R²</span></div>
+  <div class="stat-item"><span class="stat-val grad">206.99</span><span class="stat-lbl">Lahore µg/m³ (worst)</span></div>
+</div>
+
+<!-- RESEARCH QUESTIONS -->
+<section class="findings-section">
+  <div class="reveal" style="max-width:820px;margin-bottom:2rem">
+    <p class="lbl">Scope of Analysis</p>
+    <h2 class="stitle">9 Research <span class="grad">Questions</span></h2>
+    <div class="sdiv"></div>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card reveal">
+      <span class="cat-num grad">01</span>
+      <div class="cat-label">Worst Air Quality Cities</div>
+      <span class="cat-q">Top cities by PM2.5 concentration</span>
+      <span class="cat-q">Indo-Gangetic Plain dominance</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">02</span>
+      <div class="cat-label">Pollutant Trends Over Time</div>
+      <span class="cat-q">Seasonal winter peak patterns</span>
+      <span class="cat-q">PM2.5 monthly evolution</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">03</span>
+      <div class="cat-label">Main Pollution Contributors</div>
+      <span class="cat-q">NO2, CO, PM2.5 correlation (0.87)</span>
+      <span class="cat-q">Combustion triad analysis</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">04</span>
+      <div class="cat-label">Air Quality by Country</div>
+      <span class="cat-q">South Asia as global epicenter</span>
+      <span class="cat-q">BD and PK leading risk rankings</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">05</span>
+      <div class="cat-label">Days Exceeding Safe Limits</div>
+      <span class="cat-q">Spike events by city</span>
+      <span class="cat-q">Hamilton, London, Skopje leaders</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">06</span>
+      <div class="cat-label">Dominant Pollutants per City</div>
+      <span class="cat-q">PM1 and PM2.5 dominance</span>
+      <span class="cat-q">Proportional composition analysis</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">07</span>
+      <div class="cat-label">Improving or Worsening?</div>
+      <span class="cat-q">2026 surge: +13.7% in one year</span>
+      <span class="cat-q">Industrial expansion vs green policy</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">08</span>
+      <div class="cat-label">Intra-Day Consistency</div>
+      <span class="cat-q">Daily max-min gaps of 50–100 µg/m³</span>
+      <span class="cat-q">High volatility windows</span>
+    </div>
+    <div class="cat-card reveal">
+      <span class="cat-num grad">09</span>
+      <div class="cat-label">ML Prediction Model</div>
+      <span class="cat-q">Random Forest R² = 0.872</span>
+      <span class="cat-q">XGBoost R² = 0.878</span>
+    </div>
+  </div>
+</section>
+
+<!-- KEY FINDINGS -->
+<section class="findings-section" style="background:var(--surf);border-top:1px solid var(--border);padding-top:4rem">
+  <div class="reveal" style="max-width:820px">
+    <p class="lbl">Key Findings</p>
+    <h2 class="stitle">What the data <span class="grad">revealed</span></h2>
+    <div class="sdiv"></div>
+  </div>
+  <div class="findings-grid">
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#127783;</div>
+      <h3 class="finding-title">South Asia Epicenter</h3>
+      <p class="finding-txt">Lahore and Dhaka lead global PM2.5 rankings. The Indo-Gangetic Plain shows a systemic regional issue driven by agricultural burning, dense traffic, and industrial activity — not isolated local problems.</p>
+      <span class="finding-metric grad">206.99 µg/m³</span>
+    </div>
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#10052;</div>
+      <h3 class="finding-title">Winter Peak Pattern</h3>
+      <p class="finding-txt">A clear seasonal cycle emerges every year — PM2.5 and PM10 spike dramatically in November–February. January 2025 recorded the highest PM2.5 levels at 63.3 µg/m³, driven by cold air trapping pollutants near the surface.</p>
+      <span class="finding-metric grad">Nov → Feb Peak</span>
+    </div>
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#128167;</div>
+      <h3 class="finding-title">Combustion Triad</h3>
+      <p class="finding-txt">NO2 and PM2.5 show an extremely strong correlation of 0.87, and CO with SO2 at 0.80. These pollutants share a common combustion source profile — vehicles and industry are the primary drivers.</p>
+      <span class="finding-metric grad">r = 0.87</span>
+    </div>
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#9889;</div>
+      <h3 class="finding-title">2026 Pollution Surge</h3>
+      <p class="finding-txt">PM2.5 rose from 49.33 in 2025 to 56.08 in 2026 — a 13.7% jump in a single year. This suggests industrial expansion or relaxed environmental regulations have outpaced green initiatives globally.</p>
+      <span class="finding-metric grad">+13.7% in 1yr</span>
+    </div>
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#128200;</div>
+      <h3 class="finding-title">High Intra-Day Volatility</h3>
+      <p class="finding-txt">Many cities show daily max-minus-min gaps exceeding 50–100 µg/m³. A city with a "Moderate" daily average can contain 4-hour windows of "Hazardous" exposure — daily averages mask dangerous peaks.</p>
+      <span class="finding-metric grad">50–100 µg/m³ gap</span>
+    </div>
+
+    <div class="finding-card reveal">
+      <div class="finding-icon">&#127358;</div>
+      <h3 class="finding-title">ML Model Performance</h3>
+      <p class="finding-txt">XGBoost achieves R²=0.878 predicting median PM2.5 from temperature, humidity, pressure, NO2, O3 and other pollutants — without using any PM2.5 data as input features (no data leakage).</p>
+      <span class="finding-metric grad">R² = 0.878</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- HUGGING FACE APP -->
+<section class="hf-section" id="app">
+  <div class="hf-header reveal">
+    <p class="lbl">Live Demo</p>
+    <h2 class="stitle">PM2.5 Predictor <span class="grad">App</span></h2>
+    <div class="sdiv" style="margin:1rem auto"></div>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.7">
+      Interactive app deployed on Hugging Face Spaces — select any city and month to get a PM2.5 prediction using the Random Forest + XGBoost consensus model.
+    </p>
+  </div>
+  <div class="hf-embed-wrap reveal">
+    <!-- ⬇ Replace with your actual HF space URL if different -->
+    <iframe
+      src="https://fedem0203-pm25-predictor.hf.space"
+      title="PM2.5 Air Quality Predictor — Hugging Face Space"
+      frameborder="0"
+      allowfullscreen
+      loading="lazy">
+    </iframe>
+  </div>
+</section>
+
+<!-- POWER BI -->
+<section class="pbi-section" id="dashboard">
+  <div class="pbi-header reveal">
+    <p class="lbl">Interactive Dashboard</p>
+    <h2 class="stitle">Power BI <span class="grad">Dashboard</span></h2>
+    <div class="sdiv" style="margin:1rem auto"></div>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.7">
+      Explore air quality trends interactively — filter by country, city, pollutant, and time period.
+    </p>
+  </div>
+
+  <!-- ══ REPLACE this placeholder with your iframe once you publish Power BI ══
+  <div class="pbi-embed">
+    <iframe src="YOUR_POWER_BI_EMBED_URL" allowFullScreen></iframe>
+  </div>
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="pbi-placeholder reveal">
+    <div class="pbi-icon">&#128202;</div>
+    <div class="pbi-badge">&#9679;&nbsp;Coming soon</div>
+    <p>Power BI dashboard in progress. Once published, replace this placeholder with the embed <code>&lt;iframe&gt;</code> from Power BI Service → Archivo → Insertar informe → Publicar en la web.</p>
+  </div>
+</section>
+
+<!-- NOTEBOOK -->
+<section style="padding:4rem 6% 2rem" id="notebook">
+  <div class="reveal" style="max-width:820px;margin-bottom:2rem">
+    <p class="lbl">Full Analysis</p>
+    <h2 class="stitle">Jupyter <span class="grad">Notebook</span></h2>
+    <div class="sdiv"></div>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.7">Complete analysis with all code, visualizations, and findings across 79 cells.</p>
+  </div>
+  <div class="nb-frame reveal">
+    <div class="nb-controls">
+      <span>&#128193;&nbsp;Global_Air_Quality_&amp;_Pollution_Analysis.ipynb</span>
+      <button class="nb-toggle" id="nbToggle">Expand ↕</button>
+    </div>
+    <!-- Place Global_Air_Quality.html in the same folder as this file -->
+    <iframe
+      id="nbFrame"
+      src="Global_Air_Quality.html"
+      title="Global Air Quality Notebook"
+      loading="lazy"
+      style="width:100%;height:900px;border:none;background:#fff">
+    </iframe>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">FM<span>.</span></div>
+  <p class="f-copy">&copy; 2025 Federico Manotas. All rights reserved.</p>
+  <a href="../../index.html" style="font-size:.82rem;color:var(--muted);transition:color .2s"
+     onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='var(--muted)'">← Back to Portfolio</a>
+</footer>
+
+<script>
+  const ro = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const siblings = [...e.target.parentElement.querySelectorAll('.reveal')];
+      const idx = siblings.indexOf(e.target);
+      setTimeout(() => e.target.classList.add('on'), idx * 80);
+      ro.unobserve(e.target);
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+  const nbFrame = document.getElementById('nbFrame');
+  const nbToggle = document.getElementById('nbToggle');
+  let expanded = false;
+  nbToggle.addEventListener('click', () => {
+    expanded = !expanded;
+    nbFrame.style.height = expanded ? '100vh' : '900px';
+    nbToggle.textContent = expanded ? 'Collapse ↕' : 'Expand ↕';
+  });
+</script>
+</body>
+</html>
